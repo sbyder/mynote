@@ -1,6 +1,6 @@
 import { readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { defineConfig } from 'vite';
+import { build, defineConfig } from 'vite';
 
 const indexFilename = 'note-index.json';
 const noteDirectory = resolve(import.meta.dirname, 'public/notes');
@@ -40,4 +40,27 @@ function noteIndex() {
   };
 }
 
-export default defineConfig({ base: './', plugins: [noteIndex()] });
+function dilRuntime() {
+  const moduleId = '\0virtual:dil-runtime';
+  const entry = resolve(import.meta.dirname, 'src/dil-runtime.js');
+  return {
+    name: 'mynote-dil-runtime',
+    resolveId(id) {
+      if (id === 'virtual:dil-runtime') return moduleId;
+    },
+    async load(id) {
+      if (id !== moduleId) return;
+      this.addWatchFile(entry);
+      this.addWatchFile(resolve(import.meta.dirname, 'src/note-chart.js'));
+      const bundle = await build({
+        configFile: false,
+        logLevel: 'error',
+        build: { lib: { entry, name: 'MyNoteDIL', formats: ['iife'] }, write: false },
+      });
+      const script = bundle[0].output.find((item) => item.type === 'chunk').code;
+      return 'export default ' + JSON.stringify(script) + ';';
+    },
+  };
+}
+
+export default defineConfig({ base: './', plugins: [noteIndex(), dilRuntime()] });

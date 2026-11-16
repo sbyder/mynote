@@ -6,6 +6,7 @@ import '@milkdown/crepe/theme/frame.css';
 import './style.css';
 import { setupSearch } from './search.js';
 import { observeComponents, renderComponent } from './note-components.js';
+import { prepareDIL, restoreDIL } from './dil-compiler.js';
 
 const byId = (id) => document.getElementById(id);
 const tree = byId('tree');
@@ -139,7 +140,7 @@ function followNoteLink(event) {
 }
 
 function saveDraft(session) {
-  const markdown = session.crepe.getMarkdown();
+  const markdown = restoreDIL(session.crepe.getMarkdown());
   const draft = markdown === session.baseline ? null : { markdown, baseline: session.baseline };
   draftCache.set(session.path, draft);
   let label = '仓库版本';
@@ -314,7 +315,7 @@ function openNote(path, fragment = '') {
     const draft = readDraft(path);
     const crepe = new Crepe({
       root: editor,
-      defaultValue: draft?.markdown ?? original,
+      defaultValue: prepareDIL(draft?.markdown ?? original),
       featureConfigs: {
         [Crepe.Feature.CodeMirror]: {
           renderPreview: renderComponent,
@@ -356,7 +357,7 @@ function openNote(path, fragment = '') {
     if (document.documentElement.dataset.theme === 'dark') {
       crepe.editor.action(setCodeMirrorTheme(oneDark));
     }
-    session.baseline ??= crepe.getMarkdown();
+    session.baseline ??= restoreDIL(crepe.getMarkdown());
     saveDraft(session);
     editor.hidden = false;
     updateOutline();

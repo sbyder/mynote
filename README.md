@@ -21,7 +21,29 @@ npm run dev
 
 ## Markdown 组件
 
-在笔记正文中写组件名对应的代码围栏。MyNote 会直接渲染，点击「编辑源码」可修改。普通文本、表格和列表使用 Markdown 原生语法。
+普通正文、标题、列表、表格和公式使用原生 Markdown。需要状态和交互时，可直接在 Markdown 的独立段落中写 `{@body}` 和 JSX，也可以使用 `dil` 围栏。组件默认显示预览，点击「编辑源码」可修改。
+
+~~~markdown
+{@body const [value, setValue] = DIL.useState(3);}
+
+<box gap={2}>
+  <slider min={1} max={10} value={value} onChange={setValue} aria-label="数值" />
+  <text>当前数值：{value}</text>
+  {value > 5 && <badge label="大于 5" />}
+  <button onClick={() => setValue(3)}>重置</button>
+</box>
+~~~
+
+| 用途 | 支持的 DIL 标签 |
+| --- | --- |
+| 布局 | `box`、`row`、`col`、`grid`、`grid-item`、`flow`、`flow-item`、`card`、`divider`、`spacer` |
+| 交互 | `button`、`pressable`、`input`、`textarea`、`slider`、`checkbox`、`select`、`radio-group`、`radio`、`segmented-control`、`date-picker`、`form` |
+| 状态绑定 | `text`、`title`、`caption`、`badge` 可在交互块中显示表达式结果 |
+| 可视化 | `Chart`、`AppBlock`、原生 `svg` 元素 |
+
+支持 JSX 嵌套、片段、JS 属性表达式和条件渲染。每个交互块有独立的状态。 `DIL` 提供 `useState`、`useEffect`、`useCallback`、`useMemo`、`useRef`、`useId`，以及本地的 `useTheme`（返回 `light` / `dark`）和 `useBreakpoint`（600px 以内为 `sm`，其余为 `lg`）。`slider.onChange` 接收数字，`checkbox.onChange` 接收布尔值，`button.onClick` 和 `form.onSubmit` 无参数。
+
+布局支持常用的对齐、间距、尺寸和网格跨度；控件支持主要值、禁用状态和事件。ChatGPT 专属数据引用、宿主动作用于对应宿主。需要任意 HTML/JS 的 DIL `AppBlock` 可用 `content={html字符串}`，内部通过 `window.appBlock.bind` 读取数据，外部更新会触发 `appblock:bind` 事件。普通单块也可以沿用以下围栏。
 
 | 围栏名 | 内容 |
 | --- | --- |

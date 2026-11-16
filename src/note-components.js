@@ -1,5 +1,9 @@
 import { renderChart } from './note-chart.js';
+import { compileDIL } from './dil-compiler.js';
+import runtime from 'virtual:dil-runtime';
+import dilStyle from './dil-style.css?raw';
 
+const dilFrames = new WeakMap();
 const marker = '[data-mynote-component]';
 const policy = "default-src 'none'; style-src 'unsafe-inline'; img-src data: blob:; media-src data: blob:; font-src data:; base-uri 'none'; form-action 'none'";
 
@@ -23,6 +27,17 @@ export function renderComponent(language, source) {
   let preview;
   try {
     switch (language.toLowerCase()) {
+      case 'dil-native':
+      case 'dil': {
+        const code = encodeURIComponent(runtime + '\n' + compileDIL(body));
+        const bootstrap = '<script>const script=document.createElement("script");script.textContent=decodeURIComponent('
+          + JSON.stringify(code) + ');document.body.append(script);</script>';
+        preview = {
+          html: '<style>' + dilStyle + '</style><div id="dil-root"></div>' + bootstrap,
+          title: 'DIL 交互组件', scripts: true, dil: true,
+        };
+        break;
+      }
       case 'chart': {
         const block = JSON.parse(body);
         preview = { html: renderChart(block.content ?? block), title: String(block.id ?? 'Chart') };
@@ -58,9 +73,10 @@ export function renderComponent(language, source) {
 function mountComponent(placeholder) {
   if (placeholder.firstElementChild || !placeholder.isConnected) return;
 
-  const { html, title, scripts, graphic } = JSON.parse(decodeURIComponent(placeholder.dataset.mynoteComponent));
+  const { html, title, scripts, graphic, dil } = JSON.parse(decodeURIComponent(placeholder.dataset.mynoteComponent));
   const frame = document.createElement('iframe');
   frame.className = 'note-component-frame';
+  if (dil) placeholder.classList.add('dil-preview');
   frame.title = title;
   frame.setAttribute('sandbox', scripts ? 'allow-scripts' : '');
   frame.referrerPolicy = 'no-referrer';
@@ -70,9 +86,11 @@ function mountComponent(placeholder) {
     : '';
   frame.srcdoc = '<!doctype html><meta charset="utf-8">'
     + '<meta name="viewport" content="width=device-width, initial-scale=1">'
-    + '<meta http-equiv="Content-Security-Policy" content="' + policy + '; ' + scriptPolicy + '">'
+    + '<meta http-equiv="Content-Security-Policy" content="' + policy + '; ' + scriptPolicy
+    + (dil ? '; frame-src about:' : '') + '">'
     + svgStyle + html;
   placeholder.append(frame);
+  if (dil && frame.contentWindow) dilFrames.set(frame.contentWindow, placeholder);
 }
 
 export function observeComponents(editor) {
@@ -86,4 +104,12 @@ export function observeComponents(editor) {
     }
   });
   observer.observe(editor, { childList: true, subtree: true });
+  window.addEventListener('message', (event) => {
+    if (event.origin !== 'null' || event.data?.type !== 'mynote-dil-size') return;
+    const placeholder = event.source && dilFrames.get(event.source);
+    const { height } = event.data;
+    if (placeholder?.isConnected && Number.isFinite(height)) {
+      placeholder.style.height = Math.min(850, Math.max(80, height)) + 'px';
+    }
+  });
 }

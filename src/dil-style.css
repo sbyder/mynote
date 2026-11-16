@@ -1,0 +1,22 @@
+:root { color-scheme: light dark; font: 15px/1.55 system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; color: CanvasText; background: Canvas; }
+#dil-root { display: grid; gap: 10px; }
+p { margin: 3px 0; }
+button, input, textarea, select { font: inherit; }
+button, input:not([type="range"], [type="checkbox"], [type="radio"]), textarea, select {
+  padding: 6px 10px; border: 1px solid GrayText; border-radius: 6px; color: inherit; background: Field;
+}
+button:not(:disabled) { cursor: pointer; }
+button:disabled, input:disabled { opacity: .6; }
+button[aria-pressed="true"] { background: Highlight; color: HighlightText; }
+input[type="range"] { accent-color: #478571; width: 100%; margin: 0; }
+.dil-field, .dil-card, .dil-box, .dil-row, .dil-col, .dil-grid, .dil-form { gap: 8px; }
+.dil-card { padding: 12px; border: 1px solid GrayText; border-radius: 10px; }
+.dil-field { display: grid; }
+.dil-segmented { display: flex; flex-wrap: wrap; gap: 6px; }
+.dil-checkbox { display: flex; align-items: center; gap: 8px; }
+.dil-badge { width: fit-content; padding: 2px 8px; border: 1px solid GrayText; border-radius: 10px; }
+iframe { display: block; width: 100%; height: 340px; border: 0; }
+svg { max-width: 100%; }
+hr { border: 0; border-top: 1px solid GrayText; margin: 4px 0; }
