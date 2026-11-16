@@ -25,4 +25,6 @@ npm run dev
 
 ## GitHub Pages
 
-`npm run build` 的输出在 `dist/`，支持部署到 GitHub Pages 的项目子路径。可以把 `dist/` 作为 Pages 部署产物。
+在仓库的 **Settings → Pages → Build and deployment** 中将 **Source** 设为 **GitHub Actions**。
+
+推送到 `main` 会触发 **Deploy MyNote to GitHub Pages**，构建并发布 `dist/`。切换发布源后，也可以从仓库的 **Actions** 页面手动运行该工作流。默认站点地址为 <https://sbyder.github.io/mynote/>。
