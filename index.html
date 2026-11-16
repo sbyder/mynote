@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f8f7f2">
+    <title>MyNote</title>
+  </head>
+  <body>
+    <div class="workspace">
+      <aside class="sidebar" id="sidebar" aria-label="笔记目录">
+        <div class="brand"><span class="brand-icon" aria-hidden="true"></span>MyNote</div>
+        <div class="directory">
+          <label for="scope">笔记目录</label>
+          <select id="scope" autocomplete="off"><option value="">全部笔记</option></select>
+        </div>
+        <nav id="tree" aria-label="Markdown 文档"></nav>
+        <div class="sidebar-footer" id="count"></div>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <button id="sidebar-toggle" class="menu-button" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="打开笔记目录">☰</button>
+          <div id="path" class="path"></div>
+          <span id="status" class="status" role="status"></span>
+          <button id="download" type="button" disabled>下载 .md</button>
+        </header>
+        <div class="scroll-area" id="scroll-area">
+          <div class="document">
+            <div id="message" class="message" role="status">正在读取笔记目录…</div>
+            <div id="editor" aria-label="Markdown 编辑器"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
