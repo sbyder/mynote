@@ -26,7 +26,6 @@
           <button id="sidebar-toggle" class="menu-button" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="打开笔记目录">☰</button>
           <div id="path" class="path"></div>
           <span id="status" class="status" role="status"></span>
-          <button id="insert-demo" type="button" disabled>插入 HTML</button>
           <button id="theme-toggle" type="button" aria-pressed="false">暗夜模式</button>
           <button id="download" type="button" disabled>下载 .md</button>
         </header>
@@ -44,16 +43,6 @@
         </div>
       </main>
     </div>
-    <dialog id="html-demo-dialog" aria-labelledby="html-demo-label">
-      <form>
-        <label id="html-demo-label" for="html-demo-source">插入 HTML</label>
-        <textarea id="html-demo-source" rows="12" required spellcheck="false" placeholder="粘贴 HTML、CSS 和 JavaScript"></textarea>
-        <div class="dialog-actions">
-          <button id="cancel-demo" type="button">取消</button>
-          <button type="submit">插入</button>
-        </div>
-      </form>
-    </dialog>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

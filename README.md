@@ -19,17 +19,43 @@ npm run dev
 
 开发模式新增笔记后刷新即可。静态站点需要重新构建才能更新笔记目录。整个 `public/` 会随构建输出，部署到公开站点时请只放愿意公开的内容。
 
-## 插入交互 HTML
+## Markdown 组件
 
-打开一篇笔记，点击顶栏「插入 HTML」即可粘贴代码。也可以在 Markdown 文件中直接使用 `html-demo` 围栏代码块。MyNote 默认显示预览，点击「编辑源码」可以修改。
+在笔记正文中写组件名对应的代码围栏。MyNote 会直接渲染，点击「编辑源码」可修改。普通文本、表格和列表使用 Markdown 原生语法。
+
+| 围栏名 | 内容 |
+| --- | --- |
+| `Chart` | JSON 对象，包含 `content` 和可选 `id`。图表支持 `line`、`bar`、`scatter`、`pie`。 |
+| `AppBlock` | 自包含的 HTML、CSS、JavaScript。也可使用 JSON，详见下文。 |
+| `svg` | 完整的 `<svg>` 元素，用于流程图和其他自定义图示。 |
 
 ~~~markdown
-```html-demo
+```Chart
+{
+  "id": "training-loss",
+  "content": {
+    "chartType": "line",
+    "xKey": "epoch",
+    "series": [{"dataKey": "loss", "label": "训练损失"}],
+    "data": [{"epoch": 1, "loss": 0.8}, {"epoch": 2, "loss": 0.5}],
+    "xAxisLabel": "轮次",
+    "axisLabel": "损失",
+    "yAxisMin": 0,
+    "xAxisScale": "linear"
+  }
+}
+```
+
+```AppBlock
 <button onclick="this.textContent = '已点击'">点一下</button>
 ```
 ~~~
 
-交互块在独立的沙盒 iframe 中运行。脚本和样式请内联到块内。交互工具和静态流程图都可以用这个格式。普通 `html` 代码块仍显示源码。可打开「示例 / 学习笔记.md」查看卷积输出尺寸演示。
+`Chart.content` 还可使用 `valueSuffix`、`yAxisMax`。横向柱状图设置 `layout: "horizontal"`，折线图和散点图的 `xAxisScale` 可用 `"linear"` 或 `"time"`，默认按输入顺序显示分类。饼图使用一个数据系列。
+
+JSON 形式的 `AppBlock` 用 `content` 保存 HTML 字符串。可带 `app_block_id`、`bind`、`bundle_version`、`entrypoint`、`icon`、`id`、`language`、`title`、`variant`。组件脚本通过 `window.appBlock.bind` 读取初始值，其余字段保存在 `window.appBlock` 中，`title` 用作预览名称。MyNote 的 AppBlock 运行内联脚本和样式，外部入口和宿主状态绑定采用本地元数据表示。SVG 预览禁用脚本。
+
+「示例 / 学习笔记.md」包含三种组件。旧的 `html-demo` 围栏仍可打开。
 
 ## 草稿
 

@@ -308,7 +308,7 @@ summary::marker { color: var(--muted); }
 .search-result small, .search-result span { color: var(--muted); font-size: 12px; line-height: 1.45; }
 .search-result span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 
-#editor [data-mynote-html-demo] {
+#editor [data-mynote-component] {
   height: min(400px, 58vh);
   min-height: 220px;
   max-height: 85vh;
@@ -316,39 +316,6 @@ summary::marker { color: var(--muted); }
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #fff;
-}
-#editor .html-demo-frame { display: block; width: 100%; height: 100%; border: 0; }
-
-#html-demo-dialog {
-  width: min(680px, calc(100% - 32px));
-  padding: 20px;
-  color: var(--text);
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-#html-demo-dialog::backdrop { background: #10161380; }
-#html-demo-dialog form { display: grid; gap: 12px; }
-#html-demo-dialog label { font-weight: 650; }
-#html-demo-source {
-  width: 100%;
-  min-height: 110px;
-  max-height: 60dvh;
-  resize: vertical;
-  padding: 10px;
-  color: var(--text);
   background: var(--surface);
-  border: 1px solid var(--control-border);
-  border-radius: 7px;
-  font: 13px/1.5 "IBM Plex Mono", Consolas, monospace;
 }
-.dialog-actions { display: flex; justify-content: flex-end; gap: 9px; }
-.dialog-actions button {
-  padding: 7px 14px;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--control-border);
-  border-radius: 7px;
-}
-.dialog-actions button[type="submit"] { background: var(--selected); color: var(--on-selected); }
+#editor .note-component-frame { display: block; width: 100%; height: 100%; border: 0; }

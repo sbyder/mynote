@@ -1,12 +1,11 @@
 import { Crepe } from '@milkdown/crepe';
-import { editorViewCtx } from '@milkdown/kit/core';
 import { setCodeMirrorTheme } from '@milkdown/crepe/feature/code-mirror';
 import { oneDark } from '@codemirror/theme-one-dark';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 import './style.css';
 import { setupSearch } from './search.js';
-import { observeHtmlDemos, renderHtmlDemo } from './html-demo.js';
+import { observeComponents, renderComponent } from './note-components.js';
 
 const byId = (id) => document.getElementById(id);
 const tree = byId('tree');
@@ -14,11 +13,8 @@ const scope = byId('scope');
 const status = byId('status');
 const message = byId('message');
 const download = byId('download');
-const insertDemo = byId('insert-demo');
-const demoDialog = byId('html-demo-dialog');
-const demoSource = byId('html-demo-source');
 const editor = byId('editor');
-observeHtmlDemos(editor);
+observeComponents(editor);
 const scrollArea = byId('scroll-area');
 const menu = byId('sidebar-toggle');
 const themeToggle = byId('theme-toggle');
@@ -300,7 +296,6 @@ function openNote(path, fragment = '') {
   byId('path').textContent = path.split('/').join(' / ');
   status.textContent = '';
   download.disabled = true;
-  insertDemo.disabled = true;
   editor.hidden = true;
   outline.hidden = true;
   showMessage('正在打开笔记…');
@@ -322,7 +317,7 @@ function openNote(path, fragment = '') {
       defaultValue: draft?.markdown ?? original,
       featureConfigs: {
         [Crepe.Feature.CodeMirror]: {
-          renderPreview: renderHtmlDemo,
+          renderPreview: renderComponent,
           previewOnlyByDefault: true,
           previewToggleText: (previewOnly) => previewOnly ? '编辑源码' : '隐藏源码',
         },
@@ -367,7 +362,6 @@ function openNote(path, fragment = '') {
     updateOutline();
     showMessage('');
     download.disabled = false;
-    insertDemo.disabled = false;
     scrollToHeading(fragment);
   }).catch((error) => {
     if (request !== requested) return;
@@ -440,29 +434,6 @@ themeToggle.addEventListener('click', () => {
   } catch {
     // The toggle still works for the current page.
   }
-});
-
-insertDemo.addEventListener('click', () => {
-  demoSource.value = '';
-  demoDialog.showModal();
-});
-byId('cancel-demo').addEventListener('click', () => demoDialog.close());
-demoDialog.querySelector('form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const pasted = demoSource.value.trim();
-  if (!current || current.path !== selection || !pasted) return;
-  const fenced = pasted.match(/^```(?:html-demo|html)[ \t]*\n([\s\S]+)\n```$/i);
-  const source = fenced?.[1] ?? pasted;
-  current.crepe.editor.action((ctx) => {
-    const view = ctx.get(editorViewCtx);
-    const { schema, selection, tr } = view.state;
-    const { $to } = selection;
-    const position = $to.depth ? $to.after(1) : $to.pos;
-    const block = schema.nodes.code_block.create({ language: 'html-demo' }, schema.text(source));
-    view.dispatch(tr.insert(position, block));
-    demoDialog.close();
-    view.nodeDOM(position)?.scrollIntoView({ block: 'nearest' });
-  });
 });
 
 download.addEventListener('click', () => {
