@@ -1,4 +1,6 @@
 import { Crepe } from '@milkdown/crepe';
+import { setCodeMirrorTheme } from '@milkdown/crepe/feature/code-mirror';
+import { oneDark } from '@codemirror/theme-one-dark';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 import './style.css';
@@ -11,6 +13,11 @@ const message = byId('message');
 const download = byId('download');
 const editor = byId('editor');
 const menu = byId('sidebar-toggle');
+const themeToggle = byId('theme-toggle');
+const outline = byId('outline');
+const outlineLinks = byId('outline-links');
+const narrowLayout = matchMedia('(max-width: 1180px)');
+const headingSelector = '.ProseMirror :is(h1, h2, h3, h4, h5, h6)';
 const base = new URL(import.meta.env.BASE_URL, document.baseURI);
 const notebook = new URL('notes/', base);
 const draftCache = new Map();
@@ -19,6 +26,7 @@ let selection;
 let current;
 let requested = 0;
 let opening = Promise.resolve();
+let outlineSignature;
 
 function readDraft(path) {
   if (draftCache.has(path)) return draftCache.get(path);
@@ -119,6 +127,43 @@ function showMessage(label) {
   message.hidden = !label;
 }
 
+function applyTheme(dark) {
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  themeToggle.setAttribute('aria-pressed', String(dark));
+  current?.crepe.editor.action(setCodeMirrorTheme(dark ? oneDark : []));
+  document.querySelector('meta[name="theme-color"]').content = dark ? '#191e1b' : '#f8f7f2';
+}
+
+function updateOutline() {
+  const headings = [...editor.querySelectorAll(headingSelector)];
+  const entries = headings.map((heading, index) => ({
+    index,
+    level: Number(heading.tagName.slice(1)),
+    title: (heading.innerText ?? heading.textContent).trim(),
+  })).filter(({ title }) => title);
+  outline.hidden = entries.length === 0;
+  const signature = JSON.stringify(entries);
+  if (signature === outlineSignature) return;
+  outlineSignature = signature;
+
+  const firstLevel = Math.min(...entries.map(({ level }) => level));
+  const list = document.createElement('ul');
+  for (const { index, level, title } of entries) {
+    const item = document.createElement('li');
+    const button = document.createElement('button');
+    item.style.setProperty('--heading-indent', level - firstLevel);
+    button.type = 'button';
+    button.textContent = title;
+    button.addEventListener('click', () => {
+      if (narrowLayout.matches) outline.open = false;
+      editor.querySelectorAll(headingSelector)[index]?.scrollIntoView({ block: 'start' });
+    });
+    item.append(button);
+    list.append(item);
+  }
+  outlineLinks.replaceChildren(list);
+}
+
 function imageUrl(url, path) {
   try {
     const resolved = new URL(url, noteUrl(path));
@@ -154,6 +199,7 @@ function openNote(path) {
   status.textContent = '';
   download.disabled = true;
   editor.hidden = true;
+  outline.hidden = true;
   showMessage('正在打开笔记…');
 
   opening = opening.then(async () => {
@@ -191,7 +237,10 @@ function openNote(path) {
     });
     const session = { path, original, crepe, baseline: draft?.baseline };
     crepe.on((listener) => listener.markdownUpdated(() => {
-      if (current === session) saveDraft(session);
+      if (current === session && selection === path) {
+        saveDraft(session);
+        updateOutline();
+      }
     }));
     try {
       await crepe.create();
@@ -205,9 +254,13 @@ function openNote(path) {
     }
 
     current = session;
+    if (document.documentElement.dataset.theme === 'dark') {
+      crepe.editor.action(setCodeMirrorTheme(oneDark));
+    }
     session.baseline ??= crepe.getMarkdown();
     saveDraft(session);
     editor.hidden = false;
+    updateOutline();
     showMessage('');
     download.disabled = false;
     byId('scroll-area').scrollTop = 0;
@@ -253,6 +306,25 @@ menu.addEventListener('click', () => {
   menu.setAttribute('aria-expanded', 'true');
   menu.setAttribute('aria-label', '关闭笔记目录');
   byId('sidebar').classList.add('is-open');
+});
+
+outline.open = !narrowLayout.matches;
+narrowLayout.addEventListener('change', ({ matches }) => { outline.open = !matches; });
+
+try {
+  applyTheme(localStorage.getItem('mynote:theme') === 'dark');
+} catch {
+  // The light theme is the default when storage is unavailable.
+}
+
+themeToggle.addEventListener('click', () => {
+  const dark = themeToggle.getAttribute('aria-pressed') !== 'true';
+  applyTheme(dark);
+  try {
+    localStorage.setItem('mynote:theme', dark ? 'dark' : 'light');
+  } catch {
+    // The toggle still works for the current page.
+  }
 });
 
 download.addEventListener('click', () => {

@@ -22,13 +22,20 @@
           <button id="sidebar-toggle" class="menu-button" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="打开笔记目录">☰</button>
           <div id="path" class="path"></div>
           <span id="status" class="status" role="status"></span>
+          <button id="theme-toggle" type="button" aria-pressed="false">暗夜模式</button>
           <button id="download" type="button" disabled>下载 .md</button>
         </header>
-        <div class="scroll-area" id="scroll-area">
-          <div class="document">
-            <div id="message" class="message" role="status">正在读取笔记目录…</div>
-            <div id="editor" aria-label="Markdown 编辑器"></div>
+        <div class="reading-layout">
+          <div class="scroll-area" id="scroll-area">
+            <div class="document">
+              <div id="message" class="message" role="status">正在读取笔记目录…</div>
+              <div id="editor" aria-label="Markdown 编辑器"></div>
+            </div>
           </div>
+          <details class="outline" id="outline" hidden>
+            <summary>标题目录</summary>
+            <nav id="outline-links" aria-label="当前笔记的标题目录"></nav>
+          </details>
         </div>
       </main>
     </div>
