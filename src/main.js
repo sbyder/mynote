@@ -196,7 +196,7 @@ function openNote(path) {
     try {
       await crepe.create();
     } catch (error) {
-      await crepe.destroy().catch(() => {});
+      editor.replaceChildren();
       throw error;
     }
     if (request !== requested) {
