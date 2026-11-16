@@ -221,6 +221,7 @@ function showMessage(label) {
 
 function applyTheme(dark) {
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  window.dispatchEvent(new CustomEvent('mynote:themechange', { detail: { theme: dark ? 'dark' : 'light' } }));
   themeToggle.setAttribute('aria-pressed', String(dark));
   current?.crepe.editor.action(setCodeMirrorTheme(dark ? oneDark : []));
   document.querySelector('meta[name="theme-color"]').content = dark ? '#191e1b' : '#f8f7f2';

@@ -149,14 +149,16 @@ export function renderChart(config) {
   const legend = pie ? labels.map((label, i) => [colors[i % colors.length], label])
     : series.map(({ dataKey, label }, i) => [colors[i % colors.length], label ?? dataKey]);
   return `<style>
-    :root { color-scheme: light dark; font: 14px system-ui; }
-    body { margin: 0; padding: .7rem; }
-    svg { display: block; width: 100%; max-height: 300px; }
-    text { fill: CanvasText; font-size: 12px; }
-    .grid line { stroke: currentColor; stroke-opacity: .17; }
-    .legend { display: flex; gap: .45rem 1rem; justify-content: center; flex-wrap: wrap; }
-    .legend span { display: inline-flex; gap: .4rem; align-items: center; }
-    .legend i { width: .65rem; height: .65rem; border-radius: .2rem; }
+    :root { color-scheme: light dark; font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; padding: .55rem .7rem; color: CanvasText; background: Canvas; }
+    svg { display: block; width: 100%; height: auto; max-height: 340px; overflow: visible; }
+    text { fill: CanvasText; font-size: 12px; font-family: inherit; }
+    .grid line { stroke: currentColor; stroke-opacity: .18; stroke-dasharray: 3 5; }
+    .legend { display: flex; gap: .45rem 1rem; justify-content: center; flex-wrap: wrap; padding-top: .25rem; color: CanvasText; }
+    .legend span { display: inline-flex; gap: .4rem; align-items: center; font-size: 12px; }
+    .legend i { width: .65rem; height: .65rem; flex: none; border-radius: 50%; }
+    rect, circle, path { transition: filter .15s ease; }
     rect:hover, circle:hover, path:has(title):hover { filter: brightness(1.2); }
+    @media (max-width: 480px) { text { font-size: 10px; } body { padding: .35rem; } }
   </style><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 275" role="img" aria-label="图表">${drawing}</svg>${seriesLegend(legend)}`;
 }

@@ -80,6 +80,12 @@ function mountComponent(placeholder) {
   frame.title = title;
   frame.setAttribute('sandbox', scripts ? 'allow-scripts' : '');
   frame.referrerPolicy = 'no-referrer';
+  frame.addEventListener('load', () => {
+    frame.contentWindow?.postMessage({
+      type: 'mynote-theme',
+      theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
+    }, '*');
+  });
   const scriptPolicy = scripts ? "script-src 'unsafe-inline'" : "script-src 'none'";
   const svgStyle = graphic
     ? '<style>html,body{margin:0;height:100%;color-scheme:light dark}body{display:grid;place-items:center}body>svg{max-width:100%;max-height:100%;font-family:system-ui}</style>'
@@ -104,6 +110,12 @@ export function observeComponents(editor) {
     }
   });
   observer.observe(editor, { childList: true, subtree: true });
+  window.addEventListener('mynote:themechange', (event) => {
+    const theme = event.detail?.theme === 'dark' ? 'dark' : 'light';
+    editor.querySelectorAll('iframe.note-component-frame').forEach((frame) => {
+      frame.contentWindow?.postMessage({ type: 'mynote-theme', theme }, '*');
+    });
+  });
   window.addEventListener('message', (event) => {
     if (event.origin !== 'null' || event.data?.type !== 'mynote-dil-size') return;
     const placeholder = event.source && dilFrames.get(event.source);

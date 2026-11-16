@@ -34,16 +34,16 @@ npm run dev
 </box>
 ~~~
 
-| 用途 | 支持的 DIL 标签 |
-| --- | --- |
-| 布局 | `box`、`row`、`col`、`grid`、`grid-item`、`flow`、`flow-item`、`card`、`divider`、`spacer` |
-| 交互 | `button`、`pressable`、`input`、`textarea`、`slider`、`checkbox`、`select`、`radio-group`、`radio`、`segmented-control`、`date-picker`、`form` |
-| 状态绑定 | `text`、`title`、`caption`、`badge` 可在交互块中显示表达式结果 |
-| 可视化 | `Chart`、`AppBlock`、原生 `svg` 元素 |
+| 用途 | 支持的 DIL 标签 | 常用参数 |
+| --- | --- | --- |
+| 布局 | `box`、`row`、`col`、`grid`、`grid-item`、`flow`、`flow-item`、`card`、`divider`、`spacer` | `gap`、`padding`、`align`、`justify`、`wrap`、`columns`、`rows`、`minChildWidth`、`span`、`rowSpan`、`flex`、`width`、`height`、`background`、`border`、`radius`、`aspectRatio` |
+| 文本 | `text`、`title`、`caption`、`label`、`badge`、`bold`、`italic`、`underline`、`strikethrough` | `size`、`color`、`weight`、`strong`、`textAlign`、`truncate`、`maxLines`、`highlight`、`pill`、`variant` |
+| 交互 | `button`、`pressable`、`input`、`textarea`、`slider`、`checkbox`、`select`、`radio-group`、`radio`、`segmented-control`、`date-picker`、`form` | `value`、`defaultValue`、`onChange`、`onClick`、`min`、`max`、`step`、`options`、`disabled`、`variant`、`size`、`color` |
+| 可视化 | `Chart`、`AppBlock`、原生 `svg` 元素 | Chart 支持 `line`、`bar`、`scatter`、`pie`；SVG 可组合节点、路径、渐变、裁剪和滤镜 |
 
-支持 JSX 嵌套、片段、JS 属性表达式和条件渲染。每个交互块有独立的状态。 `DIL` 提供 `useState`、`useEffect`、`useCallback`、`useMemo`、`useRef`、`useId`，以及本地的 `useTheme`（返回 `light` / `dark`）和 `useBreakpoint`（600px 以内为 `sm`，其余为 `lg`）。`slider.onChange` 接收数字，`checkbox.onChange` 接收布尔值，`button.onClick` 和 `form.onSubmit` 无参数。
+支持 JSX 嵌套、片段、JS 属性表达式、条件渲染和数组映射。每个交互块有独立状态。`DIL` 提供 `useState`、`useEffect`、`useCallback`、`useMemo`、`useRef`、`useId`、`useTheme` 和 `useBreakpoint`（返回 `sm` / `md` / `lg`）。`slider.onChange` 接收数字，`checkbox.onChange` 接收布尔值，`button.onClick` 和 `form.onSubmit` 无参数。数值型 `gap`、`padding`、`rowGap`、`columnGap` 按 4pt 间距单位换算。
 
-布局支持常用的对齐、间距、尺寸和网格跨度；控件支持主要值、禁用状态和事件。ChatGPT 专属数据引用、宿主动作用于对应宿主。需要任意 HTML/JS 的 DIL `AppBlock` 可用 `content={html字符串}`，内部通过 `window.appBlock.bind` 读取数据，外部更新会触发 `appblock:bind` 事件。普通单块也可以沿用以下围栏。
+文本与布局组件支持常用样式属性；控件支持受控值、默认值、禁用状态和事件。Markdown 原生已支持的标题、列表、表格和 LaTeX 公式仍优先使用 Markdown，不重复实现。当前实现的是可在本地静态笔记中运行的组件子集；依赖宿主数据源的异步媒体、地图和实体引用组件暂不支持。DIL `AppBlock` 可用 `content={html字符串}`，内部通过 `window.appBlock.bind` 读取数据，外部更新会触发 `appblock:bind` 事件。
 
 | 围栏名 | 内容 |
 | --- | --- |

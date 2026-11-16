@@ -3,7 +3,7 @@ import jsx from 'acorn-jsx';
 
 const JSX = Parser.extend(jsx());
 const syntax = { ecmaVersion: 'latest' };
-const roots = 'box row col grid grid-item flow flow-item card divider spacer badge button input textarea slider checkbox select radio-group segmented-control date-picker form pressable Chart AppBlock svg'.split(' ');
+const roots = 'box row col grid grid-item flow flow-item card divider spacer badge button input textarea slider checkbox select radio-group radio segmented-control date-picker form pressable text title caption label bold italic underline strikethrough Chart AppBlock Link a svg'.split(' ');
 const rootPattern = new RegExp('^<(?:' + roots.join('|') + ')(?=[\\s/>])');
 const html = JSON.stringify;
 
