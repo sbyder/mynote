@@ -4,6 +4,7 @@ import { oneDark } from '@codemirror/theme-one-dark';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 import './style.css';
+import { setupSearch } from './search.js';
 
 const byId = (id) => document.getElementById(id);
 const tree = byId('tree');
@@ -46,6 +47,14 @@ function draftKey(path) {
 
 function noteUrl(path) {
   return new URL(path.split('/').map(encodeURIComponent).join('/'), notebook);
+}
+
+async function fetchNote(path) {
+  const response = await fetch(noteUrl(path));
+  if (!response.ok || response.headers.get('content-type')?.includes('text/html')) {
+    throw new Error('笔记文件读取失败');
+  }
+  return response.text();
 }
 
 function routeUrl(path, fragment = '') {
@@ -297,11 +306,7 @@ function openNote(path, fragment = '') {
       await previous.crepe.destroy();
     }
 
-    const response = await fetch(noteUrl(path));
-    if (!response.ok || response.headers.get('content-type')?.includes('text/html')) {
-      throw new Error('笔记文件读取失败');
-    }
-    const original = await response.text();
+    const original = await fetchNote(path);
     if (request !== requested) return;
 
     const draft = readDraft(path);
@@ -309,6 +314,10 @@ function openNote(path, fragment = '') {
       root: editor,
       defaultValue: draft?.markdown ?? original,
       featureConfigs: {
+        [Crepe.Feature.CodeMirror]: {
+          previewOnlyByDefault: true,
+          previewToggleText: (previewOnly) => previewOnly ? '编辑源码' : '隐藏源码',
+        },
         [Crepe.Feature.Placeholder]: { text: '开始写笔记…' },
         [Crepe.Feature.ImageBlock]: {
           proxyDomURL: (url) => imageUrl(url, path),
@@ -375,6 +384,13 @@ async function initialize() {
   }
 
   renderTree();
+  setupSearch({
+    paths,
+    tree,
+    fetchNote,
+    readDraft: (path) => readDraft(path)?.markdown,
+    openNote: navigateToNote,
+  });
   if (paths.length) openRoute();
   else showMessage('还没有笔记。把 Markdown 文件放进 public/notes/ 后刷新页面。');
 }

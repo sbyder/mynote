@@ -14,7 +14,11 @@
           <label for="scope">笔记目录</label>
           <select id="scope" autocomplete="off"><option value="">全部笔记</option></select>
         </div>
+        <div class="search">
+          <input id="note-search" type="search" placeholder="搜索标题或正文" aria-label="搜索全部笔记" autocomplete="off" disabled>
+        </div>
         <nav id="tree" aria-label="Markdown 文档"></nav>
+        <div id="search-results" class="search-results" hidden></div>
         <div class="sidebar-footer" id="count"></div>
       </aside>
       <main class="main">
