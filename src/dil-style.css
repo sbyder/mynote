@@ -111,6 +111,7 @@ svg { display: block; max-width: 100%; }
 .dil-field-label { display: grid; gap: 5px; color: var(--dil-muted); font-size: .88rem; }
 .dil-checkbox-field { display: inline-flex; align-items: center; gap: 8px; color: inherit; cursor: pointer; }
 .dil-checkbox-field input { accent-color: var(--dil-accent); }
+.dil-check-control { width: 1rem; height: 1rem; flex: none; margin: 0; accent-color: var(--dil-accent); }
 .dil-radio-group { display: flex; flex-wrap: wrap; gap: 10px 16px; }
 .dil-radio-group--vertical { flex-direction: column; align-items: flex-start; }
 .dil-segmented { display: flex; flex-wrap: wrap; align-items: stretch; gap: 5px; padding: 4px; border-radius: 10px; background: var(--dil-surface); }

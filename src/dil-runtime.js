@@ -198,10 +198,10 @@ function input(tag, props) {
     max: props.max,
     step: props.step,
     rows: props.rows,
-    class: 'dil-control dil-control--' + (props.size ?? 'md')
+    class: check ? 'dil-check-control' : 'dil-control dil-control--' + (props.size ?? 'md')
       + (props.pill ? ' dil-control--pill' : '')
       + (props.invalid ? ' is-invalid' : ''),
-    style: { fontSize: fontSize(props.fontSize), resize: tag === 'textarea' ? 'vertical' : undefined },
+    style: check ? undefined : { fontSize: fontSize(props.fontSize), resize: tag === 'textarea' ? 'vertical' : undefined },
     'aria-invalid': props.invalid ? 'true' : undefined,
     'aria-label': props.label ?? props['aria-label'],
     onInput: check ? undefined : (event) => props.onChange?.(
