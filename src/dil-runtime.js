@@ -60,7 +60,7 @@ function layout(tag, props) {
     : props.direction === 'vertical' ? 'column'
       : props.direction ?? (tag === 'row' ? 'row' : 'column');
   const style = {
-    display: isGrid ? 'grid' : 'flex',
+    display: isGrid ? 'grid' : isItem ? 'block' : 'flex',
     flexDirection: isGrid || isItem ? undefined : direction,
     flexWrap: props.wrap ? 'wrap' : undefined,
     alignItems: align(props.align),
@@ -445,13 +445,17 @@ const registry = {
   italic: (props) => h('em', attrs(props), props.children),
   underline: (props) => h('u', attrs(props), props.children),
   strikethrough: (props) => h('s', attrs(props), props.children),
-  Chart: ({ content, id }) => h('iframe', {
-    id,
-    class: 'dil-chart-frame',
-    title: 'Chart',
-    sandbox: '',
-    srcdoc: renderChart(content),
-  }),
+  Chart: ({ content, id }) => {
+    const theme = useTheme();
+    const srcdoc = renderChart(content).replace('color-scheme: light dark;', 'color-scheme: ' + theme + ';');
+    return h('iframe', {
+      id,
+      class: 'dil-chart-frame',
+      title: 'Chart',
+      sandbox: '',
+      srcdoc,
+    });
+  },
   AppBlock,
   Link: hyperlink,
   a: hyperlink,
