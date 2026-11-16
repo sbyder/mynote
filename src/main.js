@@ -12,6 +12,7 @@ const status = byId('status');
 const message = byId('message');
 const download = byId('download');
 const editor = byId('editor');
+const scrollArea = byId('scroll-area');
 const menu = byId('sidebar-toggle');
 const themeToggle = byId('theme-toggle');
 const outline = byId('outline');
@@ -45,6 +46,85 @@ function draftKey(path) {
 
 function noteUrl(path) {
   return new URL(path.split('/').map(encodeURIComponent).join('/'), notebook);
+}
+
+function routeUrl(path, fragment = '') {
+  const url = new URL(location.href);
+  url.searchParams.set('note', path);
+  url.hash = fragment;
+  return url;
+}
+
+function navigateToNote(path, fragment = '') {
+  const url = routeUrl(path, fragment);
+  if (url.href !== location.href) history.pushState(null, '', url);
+  openNote(path, fragment);
+}
+
+function openRoute() {
+  const url = new URL(location.href);
+  const path = url.searchParams.get('note');
+  const initial = paths.includes('欢迎使用.md') ? '欢迎使用.md' : paths[0];
+  if (paths.includes(path)) openNote(path, url.hash);
+  else if (initial) openNote(initial);
+}
+
+function headingText(heading) {
+  return (heading.innerText ?? heading.textContent).trim();
+}
+
+function scrollToHeading(fragment) {
+  scrollArea.scrollTop = 0;
+  if (!fragment) return;
+
+  let target;
+  try {
+    target = decodeURIComponent(fragment.slice(1));
+  } catch {
+    return;
+  }
+
+  const headings = [...editor.querySelectorAll(headingSelector)];
+  const used = new Set();
+  const heading = headings.find((element) => {
+    const slug = headingText(element).toLowerCase().replace(/[^\p{L}\p{M}\p{N}_\-\s]/gu, '').replace(/\s/g, '-');
+    let unique = slug;
+    for (let suffix = 1; used.has(unique); suffix += 1) unique = slug + '-' + suffix;
+    used.add(unique);
+    return unique === target || element.id === target;
+  }) ?? headings.find((element) => headingText(element) === target);
+  if (heading) heading.scrollIntoView({ block: 'start' });
+  else status.textContent = '找不到章节：' + target;
+}
+
+function followNoteLink(event) {
+  if (event.defaultPrevented || !current || current.path !== selection) return;
+  if (event.button !== 0 && event.button !== 1) return;
+  const href = event.target.closest?.('a[href]')?.getAttribute('href');
+  if (!href) return;
+
+  let url;
+  let path;
+  try {
+    url = new URL(href, noteUrl(current.path));
+    if (url.origin !== notebook.origin || !url.pathname.startsWith(notebook.pathname)) return;
+    path = decodeURIComponent(url.pathname.slice(notebook.pathname.length));
+  } catch {
+    return;
+  }
+  if (!/\.md$/i.test(path)) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+  if (!paths.includes(path)) {
+    status.textContent = '找不到笔记：' + path;
+    return;
+  }
+  if (event.button === 1 || event.ctrlKey || event.metaKey || event.shiftKey) {
+    window.open(routeUrl(path, url.hash).href, '_blank', 'noopener');
+  } else {
+    navigateToNote(path, url.hash);
+  }
 }
 
 function saveDraft(session) {
@@ -108,7 +188,7 @@ function fileTree(entries, prefix, parent) {
     button.dataset.path = path;
     button.title = path;
     if (path === selection) button.setAttribute('aria-current', 'page');
-    button.addEventListener('click', () => openNote(path));
+    button.addEventListener('click', () => navigateToNote(path));
     parent.append(button);
   }
 }
@@ -139,7 +219,7 @@ function updateOutline() {
   const entries = headings.map((heading, index) => ({
     index,
     level: Number(heading.tagName.slice(1)),
-    title: (heading.innerText ?? heading.textContent).trim(),
+    title: headingText(heading),
   })).filter(({ title }) => title);
   outline.hidden = entries.length === 0;
   const signature = JSON.stringify(entries);
@@ -183,9 +263,16 @@ function readImage(file) {
   });
 }
 
-function openNote(path) {
+function openNote(path, fragment = '') {
   closeSidebar();
-  if (path === selection && current?.path === path) return;
+  if (scope.value && !path.startsWith(scope.value)) {
+    scope.value = '';
+    renderTree();
+  }
+  if (path === selection && current?.path === path) {
+    scrollToHeading(fragment);
+    return;
+  }
 
   if (current) saveDraft(current);
   selection = path;
@@ -263,7 +350,7 @@ function openNote(path) {
     updateOutline();
     showMessage('');
     download.disabled = false;
-    byId('scroll-area').scrollTop = 0;
+    scrollToHeading(fragment);
   }).catch((error) => {
     if (request !== requested) return;
     console.error(error);
@@ -288,15 +375,18 @@ async function initialize() {
   }
 
   renderTree();
-  const initial = paths.includes('欢迎使用.md') ? '欢迎使用.md' : paths[0];
-  if (initial) openNote(initial);
+  if (paths.length) openRoute();
   else showMessage('还没有笔记。把 Markdown 文件放进 public/notes/ 后刷新页面。');
 }
 
 scope.addEventListener('change', () => {
   const inScope = renderTree();
-  if (!inScope.includes(selection) && inScope.length) openNote(inScope[0]);
+  if (!inScope.includes(selection) && inScope.length) navigateToNote(inScope[0]);
 });
+
+editor.addEventListener('click', followNoteLink, true);
+editor.addEventListener('auxclick', followNoteLink, true);
+window.addEventListener('popstate', openRoute);
 
 menu.addEventListener('click', () => {
   if (menu.getAttribute('aria-expanded') === 'true') {
