@@ -385,18 +385,21 @@ function useQuery(query) {
   return matches;
 }
 
+// Theme messages must work for every component, not only notes calling DIL.useTheme().
+addEventListener('message', (event) => {
+  if (event.source !== parent || event.data?.type !== 'mynote-theme') return;
+  const theme = event.data.theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = theme;
+  dispatchEvent(new CustomEvent('mynote:themechange', { detail: theme }));
+});
+
 function useTheme() {
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme
     || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
   useEffect(() => {
-    const onMessage = (event) => {
-      if (event.source !== parent || event.data?.type !== 'mynote-theme') return;
-      const next = event.data.theme === 'dark' ? 'dark' : 'light';
-      document.documentElement.dataset.theme = next;
-      setTheme(next);
-    };
-    addEventListener('message', onMessage);
-    return () => removeEventListener('message', onMessage);
+    const onTheme = (event) => setTheme(event.detail);
+    addEventListener('mynote:themechange', onTheme);
+    return () => removeEventListener('mynote:themechange', onTheme);
   }, []);
   return theme;
 }
