@@ -70,6 +70,10 @@ export function renderComponent(language, source) {
   return placeholder;
 }
 
+function staticTheme(theme) {
+  return '<style>html{color-scheme:' + (theme === 'dark' ? 'dark' : 'light') + ' !important;}</style>';
+}
+
 function mountComponent(placeholder) {
   if (placeholder.firstElementChild || !placeholder.isConnected) return;
 
@@ -90,11 +94,15 @@ function mountComponent(placeholder) {
   const svgStyle = graphic
     ? '<style>html,body{margin:0;height:100%;color-scheme:light dark}body{display:grid;place-items:center}body>svg{max-width:100%;max-height:100%;font-family:system-ui}</style>'
     : '';
-  frame.srcdoc = '<!doctype html><meta charset="utf-8">'
+  const baseSrcdoc = '<!doctype html><meta charset="utf-8">'
     + '<meta name="viewport" content="width=device-width, initial-scale=1">'
     + '<meta http-equiv="Content-Security-Policy" content="' + policy + '; ' + scriptPolicy
     + (dil ? '; frame-src about:' : '') + '">'
     + svgStyle + html;
+  // Static Chart and SVG documents cannot receive script messages due to CSP,
+  // so render their color scheme into srcdoc and refresh on theme changes.
+  if (!scripts) frame.dataset.baseSrcdoc = baseSrcdoc;
+  frame.srcdoc = scripts ? baseSrcdoc : baseSrcdoc + staticTheme(document.documentElement.dataset.theme);
   placeholder.append(frame);
   if (dil && frame.contentWindow) dilFrames.set(frame.contentWindow, placeholder);
 }
@@ -113,7 +121,11 @@ export function observeComponents(editor) {
   window.addEventListener('mynote:themechange', (event) => {
     const theme = event.detail?.theme === 'dark' ? 'dark' : 'light';
     editor.querySelectorAll('iframe.note-component-frame').forEach((frame) => {
-      frame.contentWindow?.postMessage({ type: 'mynote-theme', theme }, '*');
+      if (frame.dataset.baseSrcdoc) {
+        frame.srcdoc = frame.dataset.baseSrcdoc + staticTheme(theme);
+      } else {
+        frame.contentWindow?.postMessage({ type: 'mynote-theme', theme }, '*');
+      }
     });
   });
   window.addEventListener('message', (event) => {
