@@ -351,7 +351,7 @@ summary::marker { color: var(--muted); }
   border: 1px solid var(--border);
 }
 @media (max-width: 680px) {
-  #editor [data-mynote-component].mynote-chart-preview { min-height: 310px; }
+  #editor [data-mynote-component].mynote-chart-preview { min-height: 215px; }
   #editor .milkdown .milkdown-code-block:has([data-mynote-component]) { margin: 8px 0 16px; }
 }
 
