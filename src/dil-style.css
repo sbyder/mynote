@@ -32,10 +32,19 @@ button:not(:disabled) { cursor: pointer; }
 button:disabled, input:disabled, select:disabled, textarea:disabled { opacity: .58; cursor: not-allowed; }
 :focus-visible { outline: 2px solid var(--dil-accent); outline-offset: 2px; }
 svg { display: block; max-width: 100%; }
-.dil-box, .dil-row, .dil-col, .dil-card, .dil-form { min-width: 0; gap: 8px; }
+.dil-box, .dil-row, .dil-col, .dil-card, .dil-form {
+  --dil-gap: 8px;
+  min-width: 0;
+  gap: var(--dil-gap);
+}
 .dil-row { flex-direction: row; }
 .dil-col, .dil-box, .dil-card, .dil-form { flex-direction: column; }
-.dil-grid, .dil-flow { min-width: 0; align-items: stretch; }
+.dil-grid, .dil-flow {
+  --dil-gap: 12px;
+  min-width: 0;
+  align-items: stretch;
+  gap: var(--dil-gap);
+}
 .dil-grid-item, .dil-flow-item { min-width: 0; }
 .dil-card {
   padding: 12px;

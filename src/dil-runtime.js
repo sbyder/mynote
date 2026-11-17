@@ -66,6 +66,9 @@ function layout(tag, props) {
     alignItems: align(props.align),
     justifyContent: align(props.justify),
     gap: props.gap == null ? (props.disableAutoSpacing ? 0 : undefined) : spacing(props.gap),
+    // A CSS custom property also feeds gap: some Preact DOM updates omit
+    // shorthand spacing; this ensures authored DIL gap values are retained.
+    '--dil-gap': props.gap == null ? (props.disableAutoSpacing ? '0px' : undefined) : spacing(props.gap),
     padding: spacing(props.padding),
     width: length(props.width),
     height: length(props.height),

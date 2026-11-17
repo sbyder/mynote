@@ -159,6 +159,11 @@ export function renderChart(config) {
     .legend i { width: .68rem; height: .68rem; flex: none; border-radius: 50%; }
     rect, circle, path { transition: filter .15s ease; }
     rect:hover, circle:hover, path:has(title):hover { filter: brightness(1.2); }
-    @media (max-width: 560px) { body { padding: .35rem .25rem; } .legend { justify-content: flex-start; } }
+    @media (max-width: 560px) {
+      body { padding: .35rem .25rem; }
+      svg { min-width: 0; }
+      svg text { font-size: 20px; }
+      .legend { justify-content: center; }
+    }
   </style><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 275" role="img" aria-label="图表">${drawing}</svg>${seriesLegend(legend)}`;
 }

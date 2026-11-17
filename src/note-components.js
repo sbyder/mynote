@@ -88,6 +88,7 @@ function mountComponent(placeholder) {
     placeholder.style.setProperty('--mynote-preview-ratio', '1.9');
   } else if (kind === 'svg') {
     placeholder.classList.add('mynote-svg-preview');
+    if (ratio > 1.8) placeholder.classList.add('mynote-svg-preview--scrollable');
     placeholder.style.setProperty('--mynote-preview-ratio', String(Math.min(6, Math.max(.55, ratio || 2.5))));
   } else if (!dil) {
     placeholder.classList.add('mynote-appblock-preview');

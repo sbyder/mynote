@@ -354,3 +354,20 @@ summary::marker { color: var(--muted); }
   #editor [data-mynote-component].mynote-chart-preview { min-height: 310px; }
   #editor .milkdown .milkdown-code-block:has([data-mynote-component]) { margin: 8px 0 16px; }
 }
+
+/* Wide diagrams retain readable labels on phones and expose their scroll affordance. */
+@media (max-width: 680px) {
+  #editor [data-mynote-component].mynote-svg-preview--scrollable::after {
+    content: "↔ 横向滑动";
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 11px;
+    pointer-events: none;
+    opacity: .92;
+  }
+}
