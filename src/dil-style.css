@@ -24,7 +24,7 @@
   --dil-accent-soft: #293c30;
 }
 * { box-sizing: border-box; }
-body { margin: 0; padding: 16px; color: var(--dil-text); background: var(--dil-bg); }
+body { margin: 0; padding: 0; color: var(--dil-text); background: var(--dil-bg); }
 #dil-root { display: grid; gap: 10px; width: 100%; min-width: 0; }
 p { margin: 3px 0; }
 button, input, textarea, select { font: inherit; }
@@ -107,7 +107,48 @@ svg { display: block; max-width: 100%; }
 .dil-control--lg { padding: 10px 12px; font-size: 1.04rem; }
 .dil-control--pill { border-radius: 999px; }
 .dil-control.is-invalid { border-color: #c34f4f; }
-.dil-control[type="range"] { padding: 0; border: 0; accent-color: var(--dil-accent); background: transparent; }
+.dil-control[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.dil-control[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--dil-accent) var(--dil-range-progress, 0%), var(--dil-border) var(--dil-range-progress, 0%));
+}
+.dil-control[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border: 3px solid var(--dil-accent);
+  border-radius: 50%;
+  background: var(--dil-bg);
+  box-shadow: 0 1px 4px rgb(0 0 0 / .16);
+}
+.dil-control[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--dil-border);
+}
+.dil-control[type="range"]::-moz-range-progress { height: 6px; border-radius: 999px; background: var(--dil-accent); }
+.dil-control[type="range"]::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 3px solid var(--dil-accent);
+  border-radius: 50%;
+  background: var(--dil-bg);
+}
 .dil-field-label { display: grid; gap: 5px; color: var(--dil-muted); font-size: .88rem; }
 .dil-checkbox-field { display: inline-flex; align-items: center; gap: 8px; color: inherit; cursor: pointer; }
 .dil-checkbox-field input { accent-color: var(--dil-accent); }
@@ -118,6 +159,7 @@ svg { display: block; max-width: 100%; }
 .dil-segmented button {
   flex: 1 1 auto;
   min-width: 0;
+  min-height: 36px;
   padding: 7px 12px;
   border: 0;
   border-radius: 7px;
@@ -137,9 +179,10 @@ svg { display: block; max-width: 100%; }
 .dil-chart-frame { display: block; width: 100%; height: 330px; border: 0; background: transparent; }
 .dil-appblock { display: block; width: 100%; min-height: 180px; height: 340px; border: 1px solid var(--dil-border); border-radius: 10px; background: var(--dil-bg); }
 @media (max-width: 600px) {
-  body { padding: 10px; }
   .dil-row { flex-wrap: wrap; }
-  .dil-chart-frame { height: 290px; }
+  .dil-chart-frame { height: 305px; }
+  .dil-card { border-radius: 10px; }
+  .dil-segmented button { padding-inline: 7px; font-size: .86rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }

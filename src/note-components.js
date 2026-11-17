@@ -40,7 +40,7 @@ export function renderComponent(language, source) {
       }
       case 'chart': {
         const block = JSON.parse(body);
-        preview = { html: renderChart(block.content ?? block), title: String(block.id ?? 'Chart') };
+        preview = { html: renderChart(block.content ?? block), title: String(block.id ?? 'Chart'), kind: 'chart' };
         break;
       }
       case 'appblock':
@@ -53,7 +53,9 @@ export function renderComponent(language, source) {
         if (!/^<svg(?:\s|>)/i.test(body) || !/<\/svg>$/i.test(body)) {
           throw new Error('svg 代码块需要完整的 <svg> 元素');
         }
-        preview = { html: body, title: 'SVG 图示', graphic: true };
+        const viewBox = body.match(/\bviewBox\s*=\s*["']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)\s*["']/i);
+        const ratio = viewBox && Number(viewBox[2]) > 0 ? Number(viewBox[1]) / Number(viewBox[2]) : 2.5;
+        preview = { html: body, title: 'SVG 图示', graphic: true, kind: 'svg', ratio };
         break;
       default:
         return null;
@@ -77,10 +79,19 @@ function staticTheme(theme) {
 function mountComponent(placeholder) {
   if (placeholder.firstElementChild || !placeholder.isConnected) return;
 
-  const { html, title, scripts, graphic, dil } = JSON.parse(decodeURIComponent(placeholder.dataset.mynoteComponent));
+  const { html, title, scripts, graphic, dil, kind, ratio } = JSON.parse(decodeURIComponent(placeholder.dataset.mynoteComponent));
   const frame = document.createElement('iframe');
   frame.className = 'note-component-frame';
   if (dil) placeholder.classList.add('dil-preview');
+  if (kind === 'chart') {
+    placeholder.classList.add('mynote-chart-preview');
+    placeholder.style.setProperty('--mynote-preview-ratio', '1.9');
+  } else if (kind === 'svg') {
+    placeholder.classList.add('mynote-svg-preview');
+    placeholder.style.setProperty('--mynote-preview-ratio', String(Math.min(6, Math.max(.55, ratio || 2.5))));
+  } else if (!dil) {
+    placeholder.classList.add('mynote-appblock-preview');
+  }
   frame.title = title;
   frame.setAttribute('sandbox', scripts ? 'allow-scripts' : '');
   frame.referrerPolicy = 'no-referrer';
@@ -92,7 +103,7 @@ function mountComponent(placeholder) {
   });
   const scriptPolicy = scripts ? "script-src 'unsafe-inline'" : "script-src 'none'";
   const svgStyle = graphic
-    ? '<style>html,body{margin:0;height:100%;color-scheme:light dark}body{display:grid;place-items:center}body>svg{max-width:100%;max-height:100%;font-family:system-ui}</style>'
+    ? '<style>html,body{margin:0;color-scheme:light dark}body{overflow:auto}body>svg{display:block;width:100%;height:auto;max-width:none;font-family:system-ui}@media(max-width:600px){body>svg{min-width:600px}}</style>'
     : '';
   const baseSrcdoc = '<!doctype html><meta charset="utf-8">'
     + '<meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -133,7 +144,7 @@ export function observeComponents(editor) {
     const placeholder = event.source && dilFrames.get(event.source);
     const { height } = event.data;
     if (placeholder?.isConnected && Number.isFinite(height)) {
-      placeholder.style.height = Math.min(850, Math.max(80, height)) + 'px';
+      placeholder.style.height = Math.min(1600, Math.max(80, height)) + 'px';
     }
   });
 }

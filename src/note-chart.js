@@ -1,4 +1,4 @@
-const colors = ['#438374', '#597dbd', '#bd7259', '#8a6cae', '#ab8c36', '#498ea5'];
+const colors = ['#2cae85', '#6a94e9', '#db9857', '#aa7ddb', '#c6b35c', '#4eafc7'];
 const number = new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 3 });
 
 function escape(value) {
@@ -150,15 +150,15 @@ export function renderChart(config) {
     : series.map(({ dataKey, label }, i) => [colors[i % colors.length], label ?? dataKey]);
   return `<style>
     :root { color-scheme: light dark; font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body { margin: 0; padding: .55rem .7rem; color: CanvasText; background: Canvas; }
-    svg { display: block; width: 100%; height: auto; max-height: 340px; overflow: visible; }
-    text { fill: CanvasText; font-size: 12px; font-family: inherit; }
+    body { margin: 0; padding: .45rem .55rem; color: CanvasText; background: Canvas; overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 520px; height: auto; overflow: visible; }
+    text { fill: CanvasText; font-size: 13px; font-family: inherit; }
     .grid line { stroke: currentColor; stroke-opacity: .18; stroke-dasharray: 3 5; }
-    .legend { display: flex; gap: .45rem 1rem; justify-content: center; flex-wrap: wrap; padding-top: .25rem; color: CanvasText; }
-    .legend span { display: inline-flex; gap: .4rem; align-items: center; font-size: 12px; }
-    .legend i { width: .65rem; height: .65rem; flex: none; border-radius: 50%; }
+    .legend { display: flex; gap: .45rem 1.1rem; justify-content: center; flex-wrap: wrap; padding: .45rem 0 .2rem; color: CanvasText; }
+    .legend span { display: inline-flex; gap: .45rem; align-items: center; font-size: 13px; }
+    .legend i { width: .68rem; height: .68rem; flex: none; border-radius: 50%; }
     rect, circle, path { transition: filter .15s ease; }
     rect:hover, circle:hover, path:has(title):hover { filter: brightness(1.2); }
-    @media (max-width: 480px) { text { font-size: 10px; } body { padding: .35rem; } }
+    @media (max-width: 560px) { body { padding: .35rem .25rem; } .legend { justify-content: flex-start; } }
   </style><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 275" role="img" aria-label="图表">${drawing}</svg>${seriesLegend(legend)}`;
 }

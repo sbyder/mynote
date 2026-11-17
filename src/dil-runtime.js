@@ -100,8 +100,11 @@ function layout(tag, props) {
     if (props.minChildWidth != null) {
       style.gridTemplateColumns = 'repeat(auto-fit, minmax(' + length(props.minChildWidth) + ', 1fr))';
     } else if (props.columns != null) {
-      style.gridTemplateColumns = typeof props.columns === 'number'
-        ? 'repeat(' + props.columns + ', minmax(0, 1fr))' : props.columns;
+      // When two columns would be too narrow, keep the cards readable.
+      style.gridTemplateColumns = props.columns === 2
+        ? 'repeat(auto-fit, minmax(min(100%, 245px), 1fr))'
+        : typeof props.columns === 'number'
+          ? 'repeat(' + props.columns + ', minmax(0, 1fr))' : props.columns;
     }
     if (props.rows != null) {
       style.gridTemplateRows = typeof props.rows === 'number'
@@ -189,6 +192,12 @@ function input(tag, props) {
     : { value: props.value, defaultValue: props.defaultValue };
   if (range && props.value != null) valueProps.value = String(props.value);
   if (range && props.defaultValue != null) valueProps.defaultValue = String(props.defaultValue);
+  const rangeMin = Number(props.min ?? 0);
+  const rangeMax = Number(props.max ?? 100);
+  const rangeValue = Number(props.value ?? props.defaultValue ?? rangeMin);
+  const rangePercent = rangeMax > rangeMin
+    ? Math.max(0, Math.min(100, (rangeValue - rangeMin) / (rangeMax - rangeMin) * 100))
+    : 0;
 
   const control = h(tag === 'textarea' ? 'textarea' : 'input', {
     ...attrs(props),
@@ -201,7 +210,11 @@ function input(tag, props) {
     class: check ? 'dil-check-control' : 'dil-control dil-control--' + (props.size ?? 'md')
       + (props.pill ? ' dil-control--pill' : '')
       + (props.invalid ? ' is-invalid' : ''),
-    style: check ? undefined : { fontSize: fontSize(props.fontSize), resize: tag === 'textarea' ? 'vertical' : undefined },
+    style: check ? undefined : {
+      fontSize: fontSize(props.fontSize),
+      resize: tag === 'textarea' ? 'vertical' : undefined,
+      '--dil-range-progress': range ? rangePercent + '%' : undefined,
+    },
     'aria-invalid': props.invalid ? 'true' : undefined,
     'aria-label': props.label ?? props['aria-label'],
     onInput: check ? undefined : (event) => props.onChange?.(
@@ -496,7 +509,7 @@ globalThis.mountDIL = (Note) => {
   render(h(ErrorBoundary, null, h(Note)), root);
   const sendHeight = () => parent.postMessage({
     type: 'mynote-dil-size',
-    height: Math.ceil(root.getBoundingClientRect().height + 32),
+    height: Math.ceil(root.getBoundingClientRect().height + 4),
   }, '*');
   if (typeof ResizeObserver === 'function') new ResizeObserver(sendHeight).observe(root);
   sendHeight();
